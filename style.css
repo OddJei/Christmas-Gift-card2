@@ -314,3 +314,89 @@ body {
     font-size: 15px;
   }
 }
+
+/* Romance ambiance: subtle motion + smooth transitions */
+@keyframes fadeUpSoft {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatSoft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.card__media {
+  animation: fadeUpSoft 700ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.gift {
+  animation: fadeUpSoft 750ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  animation-delay: 90ms;
+}
+
+.card__img {
+  transform-origin: center;
+  animation: floatSoft 6.8s ease-in-out infinite;
+}
+
+.card__button,
+.gift__back {
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    opacity 220ms ease;
+  will-change: transform;
+}
+
+.card__button:hover {
+  transform: translateX(-50%) translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.22);
+}
+
+.card__button:active {
+  transform: translateX(-50%) translateY(0) scale(0.99);
+}
+
+.gift__back:hover {
+  transform: translateY(-1px);
+}
+
+.gift__svgCard {
+  width: min(860px, 100%);
+  margin: 0 auto;
+  animation: fadeUpSoft 700ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.svgCard {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .card__button:hover {
+    transform: translateX(-50%);
+  }
+}
