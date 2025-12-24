@@ -1,3 +1,11 @@
+/.git
+.github
+.gitignore
+node_modules
+*.md
+*.log
+Dockerfile
+nginx/default.conf
 .git
 .gitignore
 .github
