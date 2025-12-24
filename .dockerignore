@@ -1,0 +1,8 @@
+.git
+.gitignore
+.github
+node_modules
+*.md
+*.log
+venv
+__pycache__
