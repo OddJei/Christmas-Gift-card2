@@ -163,8 +163,27 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-.gift__messageBody:last-of-type {
-  margin-bottom: 0;
+.gift__messageBody {
+  margin-bottom: 8px;
+}
+
+.svgCard__content {
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #374151;
+  padding: 8px 10px;
+  box-sizing: border-box;
+}
+
+.svgCard__p {
+  margin: 0 0 8px 0;
+}
+
+.svgCard__sign {
+  margin: 6px 0 0 0;
+  font-style: italic;
+  font-weight: 600;
 }
 
 .gift__messageClose {
