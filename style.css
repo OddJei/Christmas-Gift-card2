@@ -233,3 +233,65 @@ body {
     padding: 10px;
   }
 }
+
+/* Mobile spacing & centering improvements */
+.card {
+  padding: 12px 8px;
+}
+
+.card__media {
+  /* Give room for the anchored button so the image doesn't feel cramped */
+  padding-bottom: 72px;
+}
+
+.card__button {
+  padding: clamp(10px, 2.2vw, 14px) clamp(14px, 4vw, 20px);
+  font-size: clamp(14px, 2.6vw, 16px);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.18);
+}
+
+.gift {
+  padding: 8px 12px;
+}
+
+.gift__title {
+  font-size: clamp(20px, 6vw, 32px);
+  margin: 6px 0 8px;
+}
+
+.gift__text {
+  font-size: clamp(13px, 3.6vw, 16px);
+  margin-bottom: 14px;
+  color: #4b5563;
+}
+
+@media (max-width: 768px) {
+  .card {
+    gap: 20px;
+  }
+
+  .card__media {
+    padding-bottom: 64px;
+    max-width: 100%;
+  }
+
+  .card__button {
+    bottom: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .card {
+    gap: 16px;
+    padding: 10px;
+  }
+
+  .card__media {
+    padding-bottom: 84px;
+  }
+
+  .card__button {
+    padding: 10px 14px;
+    font-size: 15px;
+  }
+}
