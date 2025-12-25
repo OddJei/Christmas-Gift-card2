@@ -41,112 +41,99 @@ function isModifiedClick(event) {
   return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
 }
 
-function setupTeddyBubblesFill() {
+function setupDovesFeathersOverlay() {
   if (prefersReducedMotion()) return;
 
-  const mouth = document.getElementById("teddyMouth");
-  if (!mouth) return;
+  const doveLeft = document.getElementById("doveLeft");
+  const doveRight = document.getElementById("doveRight");
+  if (!doveLeft || !doveRight) return;
 
-  const svgNS = "http://www.w3.org/2000/svg";
+  // Ensure a single overlay container
+  let overlay = document.querySelector(".featherOverlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.className = "featherOverlay";
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.appendChild(overlay);
+  }
 
-  const overlay = document.createElementNS(svgNS, "svg");
-  overlay.setAttribute("class", "bubbleOverlay");
-  overlay.setAttribute("aria-hidden", "true");
-  overlay.setAttribute("focusable", "false");
-  overlay.style.display = "block";
-  document.body.appendChild(overlay);
+  const maxFeathers = 420;
 
-  const syncViewBox = () => {
-    const width = Math.max(1, Math.floor(window.innerWidth));
-    const height = Math.max(1, Math.floor(window.innerHeight));
-    overlay.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  const getCenterPoint = (element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height * 0.65,
+    };
   };
 
-  syncViewBox();
-  window.addEventListener("resize", syncViewBox);
+  const spawnFeather = (origin) => {
+    if (!document.body.contains(overlay)) return;
 
-  const startedAt = performance.now();
-  const durationMs = 180_000;
-  const maxBubbles = 1200;
-
-  const getMouthPointInOverlay = () => {
-    const mouthRect = mouth.getBoundingClientRect();
-    const x = mouthRect.left + mouthRect.width / 2;
-    const y = mouthRect.top + mouthRect.height / 2;
-    return { x, y };
-  };
-
-  const spawnBubble = () => {
-    if (!document.body.contains(mouth)) return;
-    if (overlay.childNodes.length >= maxBubbles) return;
-
-    const { x: startX, y: startY } = getMouthPointInOverlay();
-    const width = Math.max(1, window.innerWidth);
-    const height = Math.max(1, window.innerHeight);
-
-    const circle = document.createElementNS(svgNS, "circle");
-    circle.setAttribute("class", "bubble");
-
-    // Festive palette via hue rotation (base color is pink in CSS)
-    const hueChoices = [
-      0, // pinkish
-      -14, // red
-      42, // gold
-      122, // green
-      210, // blue
-    ];
-    const hue = hueChoices[Math.floor(Math.random() * hueChoices.length)];
-    circle.style.setProperty("--hue", `${hue}deg`);
-
-    const radius = 6 + Math.random() * 18;
-    const jitterX = -10 + Math.random() * 20;
-    const jitterY = -6 + Math.random() * 12;
-
-    circle.setAttribute("cx", String(Math.max(0, Math.min(width, startX + jitterX))));
-    circle.setAttribute("cy", String(Math.max(0, Math.min(height, startY + jitterY))));
-    circle.setAttribute("r", String(radius));
-
-    const drift = -60 + Math.random() * 120;
-    const rise = height + 140;
-    const dur = 8 + Math.random() * 10;
-    const alpha = 0.28 + Math.random() * 0.34;
-
-    circle.style.setProperty("--dx", `${drift}px`);
-    circle.style.setProperty("--rise", `${rise}px`);
-    circle.style.setProperty("--dur", `${dur}s`);
-    circle.style.setProperty("--alpha", String(alpha));
-
-    overlay.appendChild(circle);
-    window.setTimeout(() => circle.remove(), Math.ceil(dur * 1000) + 150);
-  };
-
-  const loop = () => {
-    const elapsed = performance.now() - startedAt;
-    const t = Math.max(0, Math.min(1, elapsed / durationMs));
-
-    // Spawn rate ramps up over 3 minutes.
-    // ~2 bubbles/sec at start -> ~9 bubbles/sec near the end.
-    const minDelay = 110;
-    const maxDelay = 520;
-    const delay = Math.round(maxDelay - (maxDelay - minDelay) * t);
-
-    // Burst a little when we're further in, to help “fill the screen”.
-    const perTick = t < 0.25 ? 1 : t < 0.7 ? 2 : 3;
-    for (let i = 0; i < perTick; i += 1) spawnBubble();
-
-    if (elapsed < durationMs) {
-      window.setTimeout(loop, delay);
-      return;
+    // Prevent infinite DOM growth
+    if (overlay.childNodes.length >= maxFeathers) {
+      // Remove a small chunk from the front
+      for (let i = 0; i < 24; i += 1) {
+        const node = overlay.firstChild;
+        if (!node) break;
+        node.remove();
+      }
     }
 
-    // After 3 minutes, keep a gentle steady stream so it stays filled.
-    window.setInterval(() => {
-      spawnBubble();
-      if (Math.random() > 0.55) spawnBubble();
-    }, 260);
+    const feather = document.createElement("span");
+    feather.className = "feather";
+
+    const startX = origin.x + (-10 + Math.random() * 20);
+    const startY = origin.y + (-8 + Math.random() * 16);
+
+    const dx = -220 + Math.random() * 440;
+    const dy = 620 + Math.random() * 520;
+    const rot = (-60 + Math.random() * 120).toFixed(1);
+    const spin = (60 + Math.random() * 140).toFixed(1);
+    const dur = (4.8 + Math.random() * 3.2).toFixed(2);
+    const alpha = (0.55 + Math.random() * 0.35).toFixed(2);
+    const w = (12 + Math.random() * 20).toFixed(1);
+    const h = (4 + Math.random() * 7).toFixed(1);
+
+    feather.style.setProperty("--x", `${startX}px`);
+    feather.style.setProperty("--y", `${startY}px`);
+    feather.style.setProperty("--dx", `${dx}px`);
+    feather.style.setProperty("--dy", `${dy}px`);
+    feather.style.setProperty("--rot", `${rot}deg`);
+    feather.style.setProperty("--spin", `${spin}deg`);
+    feather.style.setProperty("--dur", `${dur}s`);
+    feather.style.setProperty("--alpha", alpha);
+    feather.style.setProperty("--w", `${w}px`);
+    feather.style.setProperty("--h", `${h}px`);
+
+    overlay.appendChild(feather);
+    window.setTimeout(() => feather.remove(), Math.ceil(Number(dur) * 1000) + 250);
   };
 
-  loop();
+  const spawnFromBoth = () => {
+    // Keep them “in mid air”: doves stay fixed; only feathers move.
+    const leftOrigin = getCenterPoint(doveLeft);
+    const rightOrigin = getCenterPoint(doveRight);
+
+    const leftCount = 2 + Math.floor(Math.random() * 3);
+    const rightCount = 2 + Math.floor(Math.random() * 3);
+
+    for (let i = 0; i < leftCount; i += 1) spawnFeather(leftOrigin);
+    for (let i = 0; i < rightCount; i += 1) spawnFeather(rightOrigin);
+  };
+
+  // Match the wing flap cadence from CSS (~860ms)
+  const intervalId = window.setInterval(spawnFromBoth, 860);
+
+  // Clean up if user navigates away
+  window.addEventListener(
+    "pagehide",
+    () => {
+      window.clearInterval(intervalId);
+      overlay?.remove();
+    },
+    { once: true },
+  );
 }
 
 function createGlitterBurst({ x, y }) {
@@ -225,4 +212,4 @@ if (openGiftButton && openGiftButton.tagName.toLowerCase() === "button") {
 }
 
 setupAudioAutoplayLoop();
-setupTeddyBubblesFill();
+setupDovesFeathersOverlay();

@@ -2,7 +2,7 @@
   color-scheme: light;
 
   /* Background image (drop your photo here) */
-  --romance-bg-image: url("assets/IMG-20251204-WA0029.jpg"), url("assets/christmas-gift-card-clipart.png");
+  --romance-bg-image: url("assets/493324994_3854466591471364_870685267604229663_n.jpg");
 }
 
 * {
@@ -43,9 +43,9 @@ body::after {
 
   /* Keeps text readable on top of the photo */
   background:
-    radial-gradient(circle at 20% 10%, rgba(255, 192, 203, 0.35), rgba(255, 192, 203, 0) 55%),
-    radial-gradient(circle at 80% 20%, rgba(255, 192, 203, 0.28), rgba(255, 192, 203, 0) 55%),
-    linear-gradient(180deg, rgba(255, 230, 238, 0.55), rgba(255, 230, 238, 0.4));
+    radial-gradient(circle at 20% 10%, rgba(17, 24, 39, 0.38), rgba(17, 24, 39, 0) 58%),
+    radial-gradient(circle at 80% 20%, rgba(17, 24, 39, 0.28), rgba(17, 24, 39, 0) 58%),
+    linear-gradient(180deg, rgba(17, 24, 39, 0.62), rgba(17, 24, 39, 0.38));
 }
 
 .page {
@@ -251,42 +251,164 @@ body::after {
   height: auto;
 }
 
-/* Bubble overlay (fills screen over ~3 minutes via JS) */
-.bubbleOverlay {
+/* Mother Mary candles (flicker) */
+.teddy__svg .candle__flame {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: candleFlicker 1100ms ease-in-out infinite;
+}
+
+.teddy__svg .candle__flame--b {
+  animation-duration: 980ms;
+  animation-delay: -260ms;
+}
+
+.teddy__svg .candle__flame--c {
+  animation-duration: 1240ms;
+  animation-delay: -520ms;
+}
+
+.teddy__svg .candle__glow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: candleGlow 1100ms ease-in-out infinite;
+  opacity: 0.18;
+}
+
+.teddy__svg .candle__glow--b {
+  animation-duration: 980ms;
+  animation-delay: -260ms;
+}
+
+.teddy__svg .candle__glow--c {
+  animation-duration: 1240ms;
+  animation-delay: -520ms;
+}
+
+@keyframes candleFlicker {
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translateY(-0.6px) scale(1.05);
+    opacity: 0.82;
+  }
+}
+
+@keyframes candleGlow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.18;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.26;
+  }
+}
+
+/* Doves + feathers overlay (replaces bubbles) */
+.doves {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 22px;
+  pointer-events: none;
+  z-index: 3;
+
+  /* Sit slightly above the card */
+  transform: translateY(-66px);
+}
+
+.dove {
+  width: clamp(162px, 24vw, 216px);
+  height: auto;
+  opacity: 0.98;
+  filter: drop-shadow(0 10px 18px rgba(2, 6, 23, 0.28));
+}
+
+.dove__wing {
+  transform-box: fill-box;
+  transform-origin: 55% 55%;
+  animation: doveFlap 860ms ease-in-out infinite;
+}
+
+.dove--right .dove__wing {
+  animation-delay: -430ms;
+}
+
+.dove__wing--back {
+  animation-duration: 920ms;
+  opacity: 0.88;
+}
+
+@keyframes doveFlap {
+  0%,
+  100% {
+    transform: rotate(8deg) scaleY(1);
+  }
+  50% {
+    transform: rotate(-18deg) scaleY(0.96);
+  }
+}
+
+.featherOverlay {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  z-index: 2;
+  z-index: 4;
 }
 
-.bubble {
-  /* Base color is pink; JS varies hue per bubble for rainbow effect */
-  fill: rgba(255, 192, 203, 0.24);
-  stroke: rgba(255, 192, 203, 0.52);
-  stroke-width: 1;
-  filter:
-    blur(0.15px)
-    hue-rotate(var(--hue, 0deg))
-    saturate(1.35);
-  mix-blend-mode: screen;
+.feather {
+  position: absolute;
+  left: var(--x, 50%);
+  top: var(--y, 10%);
+  width: var(--w, 20px);
+  height: var(--h, 8px);
+  border-radius: 999px;
   opacity: 0;
-  transform: translate(0px, 0px) scale(0.75);
-  animation: bubbleRise var(--dur, 10s) linear both;
+  filter: blur(0.05px);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.98) 40%, rgba(243, 244, 246, 0.9) 70%, rgba(255, 255, 255, 0));
+
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+  animation: featherDrift var(--dur, 6.2s) cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 
-@keyframes bubbleRise {
+.feather::after {
+  content: "";
+  position: absolute;
+  left: 52%;
+  top: 50%;
+  width: 1px;
+  height: 82%;
+  transform: translate(-50%, -50%) rotate(10deg);
+  background: rgba(17, 24, 39, 0.18);
+  border-radius: 999px;
+}
+
+@keyframes featherDrift {
   0% {
     opacity: 0;
-    transform: translate(0px, 0px) scale(0.65);
+    transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) translate(0px, 0px) scale(0.92);
   }
-  10% {
-    opacity: var(--alpha, 0.55);
+  12% {
+    opacity: var(--alpha, 0.85);
   }
   100% {
     opacity: 0;
-    transform: translate(var(--dx, 0px), calc(var(--rise, 900px) * -1)) scale(1.1);
+    transform:
+      translate(-50%, -50%)
+      rotate(calc(var(--rot, 0deg) + var(--spin, 90deg)))
+      translate(var(--dx, 0px), var(--dy, 860px))
+      scale(1.06);
   }
 }
 
@@ -468,6 +590,9 @@ body::after {
   width: min(860px, 100%);
   margin: 0 auto;
   animation: fadeUpSoft 700ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+
+  /* Anchor for doves overlay */
+  position: relative;
 }
 
 .svgCard {
@@ -488,6 +613,11 @@ body::after {
 
   .card__button:hover {
     transform: translateX(-50%);
+  }
+
+  .doves,
+  .featherOverlay {
+    display: none !important;
   }
 }
 
@@ -538,10 +668,6 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .glitter,
   .glitter__spark {
-    display: none !important;
-  }
-
-  .bubbleOverlay {
     display: none !important;
   }
 }
