@@ -43,9 +43,9 @@ body::after {
 
   /* Keeps text readable on top of the photo */
   background:
-    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%),
-    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 55%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.88));
+    radial-gradient(circle at 20% 10%, rgba(255, 192, 203, 0.35), rgba(255, 192, 203, 0) 55%),
+    radial-gradient(circle at 80% 20%, rgba(255, 192, 203, 0.28), rgba(255, 192, 203, 0) 55%),
+    linear-gradient(180deg, rgba(255, 230, 238, 0.55), rgba(255, 230, 238, 0.4));
 }
 
 .page {
@@ -262,10 +262,15 @@ body::after {
 }
 
 .bubble {
-  fill: rgba(255, 255, 255, 0.38);
-  stroke: rgba(255, 255, 255, 0.55);
+  /* Base color is pink; JS varies hue per bubble for rainbow effect */
+  fill: rgba(255, 192, 203, 0.24);
+  stroke: rgba(255, 192, 203, 0.52);
   stroke-width: 1;
-  filter: blur(0.2px);
+  filter:
+    blur(0.15px)
+    hue-rotate(var(--hue, 0deg))
+    saturate(1.35);
+  mix-blend-mode: screen;
   opacity: 0;
   transform: translate(0px, 0px) scale(0.75);
   animation: bubbleRise var(--dur, 10s) linear both;

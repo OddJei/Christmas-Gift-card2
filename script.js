@@ -87,6 +87,17 @@ function setupTeddyBubblesFill() {
     const circle = document.createElementNS(svgNS, "circle");
     circle.setAttribute("class", "bubble");
 
+    // Festive palette via hue rotation (base color is pink in CSS)
+    const hueChoices = [
+      0, // pinkish
+      -14, // red
+      42, // gold
+      122, // green
+      210, // blue
+    ];
+    const hue = hueChoices[Math.floor(Math.random() * hueChoices.length)];
+    circle.style.setProperty("--hue", `${hue}deg`);
+
     const radius = 6 + Math.random() * 18;
     const jitterX = -10 + Math.random() * 20;
     const jitterY = -6 + Math.random() * 12;
