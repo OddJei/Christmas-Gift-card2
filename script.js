@@ -2,9 +2,13 @@ function prefersReducedMotion() {
   return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function setupAudioPreview() {
+const AUDIO_NAV_FLAG_KEY = "chrstGift:playAudio";
+
+function setupAudioAutoplayLoop() {
   const audio = document.getElementById("romanceAudio");
   if (!audio) return;
+
+  audio.loop = true;
 
   const audioSrc = audio.getAttribute("src") || "";
   if (!audioSrc) {
@@ -12,38 +16,25 @@ function setupAudioPreview() {
     return;
   }
 
-  const previewSeconds = Number(audio.dataset.previewSeconds || "40");
-  if (!Number.isFinite(previewSeconds) || previewSeconds <= 0) return;
+  const shouldAutoplay = window.sessionStorage.getItem(AUDIO_NAV_FLAG_KEY) === "1";
+  if (!shouldAutoplay) return;
+  window.sessionStorage.removeItem(AUDIO_NAV_FLAG_KEY);
 
-  let hasStarted = false;
-
-  const stopAtPreview = () => {
-    if (audio.currentTime >= previewSeconds) {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.removeEventListener("timeupdate", stopAtPreview);
-    }
-  };
-
-  const tryPlay = () => {
-    if (hasStarted || prefersReducedMotion()) return;
-    hasStarted = true;
-    audio.addEventListener("timeupdate", stopAtPreview);
-
+  const tryPlayNow = () => {
     const playPromise = audio.play();
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => {
         console.warn(
-          "[romance-audio] Playback blocked or file missing. Open DevTools → Network and confirm the MP3 loads:",
+          "[romance-audio] Playback blocked. Tap/click once to start. If it still fails, confirm the MP3 loads:",
           audioSrc,
         );
+        document.addEventListener("pointerdown", () => audio.play().catch(() => {}), { once: true });
       });
     }
   };
 
-  // Autoplay is usually blocked without a gesture. Start on the first gesture.
-  document.addEventListener("pointerdown", tryPlay, { once: true });
-  document.addEventListener("keydown", tryPlay, { once: true });
+  // Best-effort immediate start after the user pressed the button.
+  tryPlayNow();
 }
 
 function isModifiedClick(event) {
@@ -83,6 +74,13 @@ function createGlitterBurst({ x, y }) {
 
 function hookGlitterNavigation(link) {
   link.addEventListener("click", (event) => {
+    // Request audio autoplay on the gift page (best-effort, depends on browser policies)
+    try {
+      window.sessionStorage.setItem(AUDIO_NAV_FLAG_KEY, "1");
+    } catch {
+      // ignore
+    }
+
     if (prefersReducedMotion() || isModifiedClick(event)) return;
     if (!link.href) return;
 
@@ -118,4 +116,4 @@ if (openGiftButton && openGiftButton.tagName.toLowerCase() === "button") {
   });
 }
 
-setupAudioPreview();
+setupAudioAutoplayLoop();
