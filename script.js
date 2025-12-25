@@ -41,6 +41,103 @@ function isModifiedClick(event) {
   return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
 }
 
+function setupTeddyBubblesFill() {
+  if (prefersReducedMotion()) return;
+
+  const mouth = document.getElementById("teddyMouth");
+  if (!mouth) return;
+
+  const svgNS = "http://www.w3.org/2000/svg";
+
+  const overlay = document.createElementNS(svgNS, "svg");
+  overlay.setAttribute("class", "bubbleOverlay");
+  overlay.setAttribute("aria-hidden", "true");
+  overlay.setAttribute("focusable", "false");
+  overlay.style.display = "block";
+  document.body.appendChild(overlay);
+
+  const syncViewBox = () => {
+    const width = Math.max(1, Math.floor(window.innerWidth));
+    const height = Math.max(1, Math.floor(window.innerHeight));
+    overlay.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  };
+
+  syncViewBox();
+  window.addEventListener("resize", syncViewBox);
+
+  const startedAt = performance.now();
+  const durationMs = 180_000;
+  const maxBubbles = 1200;
+
+  const getMouthPointInOverlay = () => {
+    const mouthRect = mouth.getBoundingClientRect();
+    const x = mouthRect.left + mouthRect.width / 2;
+    const y = mouthRect.top + mouthRect.height / 2;
+    return { x, y };
+  };
+
+  const spawnBubble = () => {
+    if (!document.body.contains(mouth)) return;
+    if (overlay.childNodes.length >= maxBubbles) return;
+
+    const { x: startX, y: startY } = getMouthPointInOverlay();
+    const width = Math.max(1, window.innerWidth);
+    const height = Math.max(1, window.innerHeight);
+
+    const circle = document.createElementNS(svgNS, "circle");
+    circle.setAttribute("class", "bubble");
+
+    const radius = 6 + Math.random() * 18;
+    const jitterX = -10 + Math.random() * 20;
+    const jitterY = -6 + Math.random() * 12;
+
+    circle.setAttribute("cx", String(Math.max(0, Math.min(width, startX + jitterX))));
+    circle.setAttribute("cy", String(Math.max(0, Math.min(height, startY + jitterY))));
+    circle.setAttribute("r", String(radius));
+
+    const drift = -60 + Math.random() * 120;
+    const rise = height + 140;
+    const dur = 8 + Math.random() * 10;
+    const alpha = 0.28 + Math.random() * 0.34;
+
+    circle.style.setProperty("--dx", `${drift}px`);
+    circle.style.setProperty("--rise", `${rise}px`);
+    circle.style.setProperty("--dur", `${dur}s`);
+    circle.style.setProperty("--alpha", String(alpha));
+
+    overlay.appendChild(circle);
+    window.setTimeout(() => circle.remove(), Math.ceil(dur * 1000) + 150);
+  };
+
+  const loop = () => {
+    const elapsed = performance.now() - startedAt;
+    const t = Math.max(0, Math.min(1, elapsed / durationMs));
+
+    // Spawn rate ramps up over 3 minutes.
+    // ~2 bubbles/sec at start -> ~9 bubbles/sec near the end.
+    const minDelay = 110;
+    const maxDelay = 520;
+    const delay = Math.round(maxDelay - (maxDelay - minDelay) * t);
+
+    // Burst a little when we're further in, to help “fill the screen”.
+    const perTick = t < 0.25 ? 1 : t < 0.7 ? 2 : 3;
+    for (let i = 0; i < perTick; i += 1) spawnBubble();
+
+    if (elapsed < durationMs) {
+      window.setTimeout(loop, delay);
+      return;
+    }
+
+    // After 3 minutes, keep a gentle steady stream so it stays filled.
+    window.setInterval(() => {
+      spawnBubble();
+      if (Math.random() > 0.55) spawnBubble();
+    }, 260);
+  };
+
+  loop();
+}
+
 function createGlitterBurst({ x, y }) {
   const burst = document.createElement("div");
   burst.className = "glitter";
@@ -117,3 +214,4 @@ if (openGiftButton && openGiftButton.tagName.toLowerCase() === "button") {
 }
 
 setupAudioAutoplayLoop();
+setupTeddyBubblesFill();

@@ -239,6 +239,52 @@ body::after {
   text-decoration: underline;
 }
 
+.teddy {
+  width: min(860px, 100%);
+  margin: 14px auto 0;
+  display: grid;
+  place-items: center;
+}
+
+.teddy__svg {
+  width: min(320px, 92vw);
+  height: auto;
+}
+
+/* Bubble overlay (fills screen over ~3 minutes via JS) */
+.bubbleOverlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.bubble {
+  fill: rgba(255, 255, 255, 0.38);
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1;
+  filter: blur(0.2px);
+  opacity: 0;
+  transform: translate(0px, 0px) scale(0.75);
+  animation: bubbleRise var(--dur, 10s) linear both;
+}
+
+@keyframes bubbleRise {
+  0% {
+    opacity: 0;
+    transform: translate(0px, 0px) scale(0.65);
+  }
+  10% {
+    opacity: var(--alpha, 0.55);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 0px), calc(var(--rise, 900px) * -1)) scale(1.1);
+  }
+}
+
 @media (max-width: 768px) {
   .page {
     /* More room for the card on phones */
@@ -487,6 +533,10 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .glitter,
   .glitter__spark {
+    display: none !important;
+  }
+
+  .bubbleOverlay {
     display: none !important;
   }
 }
