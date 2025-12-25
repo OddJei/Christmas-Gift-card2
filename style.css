@@ -2,7 +2,7 @@
   color-scheme: light;
 
   /* Background image (drop your photo here) */
-  --romance-bg-image: url("assets/romantic-bg.jpg");
+  --romance-bg-image: url("assets/IMG-20251204-WA0029.jpg"), url("assets/christmas-gift-card-clipart.png");
 }
 
 * {
@@ -31,8 +31,8 @@ body::before {
   background-position: center;
   background-repeat: no-repeat;
 
-  filter: blur(18px);
-  transform: scale(1.08);
+  filter: blur(10px);
+  transform: scale(1.04);
 }
 
 body::after {
