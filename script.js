@@ -6,6 +6,12 @@ function setupAudioPreview() {
   const audio = document.getElementById("romanceAudio");
   if (!audio) return;
 
+  const audioSrc = audio.getAttribute("src") || "";
+  if (!audioSrc) {
+    console.warn("[romance-audio] No src set on #romanceAudio");
+    return;
+  }
+
   const previewSeconds = Number(audio.dataset.previewSeconds || "40");
   if (!Number.isFinite(previewSeconds) || previewSeconds <= 0) return;
 
@@ -27,7 +33,10 @@ function setupAudioPreview() {
     const playPromise = audio.play();
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => {
-        // Autoplay policies may still block; ignore quietly.
+        console.warn(
+          "[romance-audio] Playback blocked or file missing. Open DevTools → Network and confirm the MP3 loads:",
+          audioSrc,
+        );
       });
     }
   };
