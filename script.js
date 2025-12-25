@@ -2,6 +2,41 @@ function prefersReducedMotion() {
   return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function setupAudioPreview() {
+  const audio = document.getElementById("romanceAudio");
+  if (!audio) return;
+
+  const previewSeconds = Number(audio.dataset.previewSeconds || "40");
+  if (!Number.isFinite(previewSeconds) || previewSeconds <= 0) return;
+
+  let hasStarted = false;
+
+  const stopAtPreview = () => {
+    if (audio.currentTime >= previewSeconds) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.removeEventListener("timeupdate", stopAtPreview);
+    }
+  };
+
+  const tryPlay = () => {
+    if (hasStarted || prefersReducedMotion()) return;
+    hasStarted = true;
+    audio.addEventListener("timeupdate", stopAtPreview);
+
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {
+        // Autoplay policies may still block; ignore quietly.
+      });
+    }
+  };
+
+  // Autoplay is usually blocked without a gesture. Start on the first gesture.
+  document.addEventListener("pointerdown", tryPlay, { once: true });
+  document.addEventListener("keydown", tryPlay, { once: true });
+}
+
 function isModifiedClick(event) {
   return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
 }
@@ -73,3 +108,5 @@ if (openGiftButton && openGiftButton.tagName.toLowerCase() === "button") {
     }, 420);
   });
 }
+
+setupAudioPreview();
